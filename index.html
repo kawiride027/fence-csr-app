@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fence Department — CSR Call Guide</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <h1>Fence Department</h1>
+      <span class="subtitle">CSR Call Guide</span>
+    </div>
+    <div class="header-right">
+      <button class="btn-new-call" id="btn-new-call" onclick="CallFlow.reset()">+ New Call</button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- ========== MAIN PANEL (left 60%) ========== -->
+    <div class="main-panel" id="main-panel">
+
+      <!-- Call Type Selection (home screen) -->
+      <div id="screen-home">
+        <div class="section-header">
+          <h2>What is the customer calling about?</h2>
+        </div>
+        <div class="call-type-grid">
+          <div class="call-type-card" onclick="CallFlow.start('fence-rental')">
+            <div class="call-type-icon">&#x1F3D7;&#xFE0F;</div>
+            <div class="call-type-label">New Fence Rental</div>
+            <div class="call-type-desc">Temporary fencing for job sites, events, etc.</div>
+          </div>
+          <div class="call-type-card" onclick="CallFlow.start('barricade-rental')">
+            <div class="call-type-icon">&#x1F6A7;</div>
+            <div class="call-type-label">Barricade Rental</div>
+            <div class="call-type-desc">Traffic barricades for road work, events</div>
+          </div>
+          <div class="call-type-card" onclick="CallFlow.start('fence-purchase')">
+            <div class="call-type-icon">&#x1F6D2;</div>
+            <div class="call-type-label">Fence Purchase</div>
+            <div class="call-type-desc">Buy panels, bases, screens, clamps</div>
+          </div>
+          <div class="call-type-card" onclick="CallFlow.start('issue')">
+            <div class="call-type-icon">&#x26A0;&#xFE0F;</div>
+            <div class="call-type-label">Rental Issue</div>
+            <div class="call-type-desc">Damage, fallen fence, missing parts</div>
+          </div>
+          <div class="call-type-card" onclick="CallFlow.start('removal')">
+            <div class="call-type-icon">&#x1F4E6;</div>
+            <div class="call-type-label">Ready for Removal</div>
+            <div class="call-type-desc">Customer needs fence/barricade picked up</div>
+          </div>
+          <div class="call-type-card" onclick="CallFlow.start('general')">
+            <div class="call-type-icon">&#x2753;</div>
+            <div class="call-type-label">General Question</div>
+            <div class="call-type-desc">Billing, current rental, info request</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ FENCE RENTAL FLOW ============ -->
+      <div id="screen-fence-rental" class="hidden">
+        <div class="section-header">
+          <button class="btn-back" onclick="CallFlow.reset()">&#x2190; Back</button>
+          <h2>&#x1F3D7;&#xFE0F; New Fence Rental</h2>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="customer-info-section">
+          <h3>Customer Information</h3>
+          <div class="customer-info-fields">
+            <div class="field-group">
+              <label for="rental-cust-name">Name</label>
+              <input type="text" id="rental-cust-name" placeholder="e.g. John Smith">
+            </div>
+            <div class="field-group">
+              <label for="rental-cust-phone">Phone</label>
+              <input type="tel" id="rental-cust-phone" placeholder="e.g. (818) 555-1234">
+            </div>
+            <div class="field-group">
+              <label for="rental-cust-email">Email</label>
+              <input type="email" id="rental-cust-email" placeholder="e.g. john@example.com">
+            </div>
+            <div class="field-group">
+              <label for="rental-cust-address">Job Site Address</label>
+              <input type="text" id="rental-cust-address" placeholder="e.g. 123 Main St, Los Angeles, CA">
+            </div>
+          </div>
+        </div>
+
+        <div class="steps-container">
+          <!-- Step 1: Coverage -->
+          <div class="step active" id="rental-step-1">
+            <h3><span class="step-num">1</span> Coverage</h3>
+            <div class="step-content">
+              <div class="field-group">
+                <label for="rental-linear-feet">Linear Feet Needed</label>
+                <input type="number" id="rental-linear-feet" min="1" step="1" inputmode="numeric" placeholder="e.g. 200">
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Panel Height -->
+          <div class="step locked" id="rental-step-2">
+            <h3><span class="step-num">2</span> Panel Height</h3>
+            <div class="step-content">
+              <div class="radio-cards">
+                <label class="radio-card">
+                  <input type="radio" name="rental-height" value="6ft">
+                  <span>6 ft</span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="rental-height" value="8ft">
+                  <span>8 ft</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Installation Surface -->
+          <div class="step locked" id="rental-step-3">
+            <h3><span class="step-num">3</span> Installation Surface</h3>
+            <div class="step-content">
+              <div class="radio-cards radio-cards-4">
+                <label class="radio-card"><input type="radio" name="rental-surface" value="dirt"><span>Dirt</span></label>
+                <label class="radio-card"><input type="radio" name="rental-surface" value="concrete"><span>Concrete</span></label>
+                <label class="radio-card"><input type="radio" name="rental-surface" value="asphalt"><span>Asphalt</span></label>
+                <label class="radio-card"><input type="radio" name="rental-surface" value="other"><span>Other</span></label>
+              </div>
+              <div id="rental-install-type-group" class="field-group sub-option hidden">
+                <label>Installation Method</label>
+                <div class="radio-cards">
+                  <label class="radio-card">
+                    <input type="radio" name="rental-install-type" value="above-ground">
+                    <span>Above Ground</span>
+                  </label>
+                  <label class="radio-card">
+                    <input type="radio" name="rental-install-type" value="in-ground">
+                    <span>In Ground</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Privacy Screen -->
+          <div class="step locked" id="rental-step-4">
+            <h3><span class="step-num">4</span> Privacy Screen</h3>
+            <div class="step-content">
+              <div class="radio-cards">
+                <label class="radio-card"><input type="radio" name="rental-privacy" value="yes"><span>Yes</span></label>
+                <label class="radio-card"><input type="radio" name="rental-privacy" value="no"><span>No</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Gates -->
+          <div class="step locked" id="rental-step-5">
+            <h3><span class="step-num">5</span> Gates</h3>
+            <div class="step-content">
+              <div class="field-group">
+                <label>Vehicle Gate</label>
+                <div class="radio-cards">
+                  <label class="radio-card"><input type="radio" name="rental-vehicle-gate" value="yes"><span>Yes</span></label>
+                  <label class="radio-card"><input type="radio" name="rental-vehicle-gate" value="no"><span>No</span></label>
+                </div>
+                <div id="rental-vehicle-gate-type-group" class="field-group sub-option hidden">
+                  <label>Gate Size</label>
+                  <div class="radio-cards">
+                    <label class="radio-card">
+                      <input type="radio" name="rental-vehicle-gate-type" value="standard">
+                      <span id="rental-vgate-standard-label">Standard 10ft/12ft — $125</span>
+                    </label>
+                    <label class="radio-card">
+                      <input type="radio" name="rental-vehicle-gate-type" value="double-wide">
+                      <span id="rental-vgate-doublewide-label">Double-Wide 20ft — $175</span>
+                    </label>
+                  </div>
+                  <p class="note">Wheel included free with all vehicle gates.</p>
+                </div>
+              </div>
+              <div class="field-group">
+                <label>Pedestrian Gate — $75</label>
+                <div class="radio-cards">
+                  <label class="radio-card"><input type="radio" name="rental-ped-gate" value="yes"><span>Yes</span></label>
+                  <label class="radio-card"><input type="radio" name="rental-ped-gate" value="no"><span>No</span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6: Sandbags -->
+          <div class="step locked" id="rental-step-6">
+            <h3><span class="step-num">6</span> Sandbags</h3>
+            <div class="step-content">
+              <p id="rental-sandbag-recommendation" class="note"></p>
+              <div class="field-group">
+                <label for="rental-sandbag-qty">Quantity</label>
+                <input type="number" id="rental-sandbag-qty" min="0" step="1" inputmode="numeric" value="0">
+                <p class="note">$7.95 each (purchased — taxable). Recommended for stability.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 7: Rental Duration -->
+          <div class="step locked" id="rental-step-7">
+            <h3><span class="step-num">7</span> Rental Duration</h3>
+            <div class="step-content">
+              <div class="field-group">
+                <label for="rental-duration">Duration (months)</label>
+                <select id="rental-duration">
+                  <option value="6">Up to 6 months (standard)</option>
+                  <option value="7">7 months</option>
+                  <option value="8">8 months</option>
+                  <option value="9">9 months</option>
+                  <option value="10">10 months</option>
+                  <option value="11">11 months</option>
+                  <option value="12">12 months (1-year commitment — 1 month free)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 8: Delivery -->
+          <div class="step locked" id="rental-step-8">
+            <h3><span class="step-num">8</span> Delivery</h3>
+            <div class="step-content">
+              <div class="field-group">
+                <label for="rental-zip">Delivery Zip Code</label>
+                <input type="text" id="rental-zip" maxlength="5" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 90210">
+                <p id="rental-delivery-info" class="note"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rental Summary -->
+        <div class="summary-card">
+          <h3>Estimate Summary</h3>
+          <div id="rental-summary-content">
+            <p class="empty-state">Fill in the steps above to see your estimate.</p>
+          </div>
+          <button class="btn-save-pdf" id="rental-save-pdf" style="display:none;" onclick="PdfExport.exportEstimate('fence-rental','Fence Rental Estimate')">Save as PDF</button>
+        </div>
+
+        <!-- CSR Submission Fields -->
+        <div class="csr-fields-section" id="rental-csr-fields">
+          <h3>Call Summary</h3>
+          <div class="csr-fields-grid">
+            <div class="field-group">
+              <label for="rental-csr-name">CSR Name</label>
+              <input type="text" id="rental-csr-name" placeholder="Your name">
+            </div>
+            <div class="field-group">
+              <label for="rental-call-outcome">Call Outcome</label>
+              <select id="rental-call-outcome">
+                <option value="">Select...</option>
+                <option value="Sent Estimate">Sent Estimate</option>
+                <option value="Booked Job">Booked Job</option>
+                <option value="Follow-up Needed">Follow-up Needed</option>
+                <option value="Info Only">Info Only</option>
+                <option value="Transferred">Transferred</option>
+              </select>
+            </div>
+            <div class="field-group full-width">
+              <label for="rental-csr-notes">Notes</label>
+              <textarea id="rental-csr-notes" placeholder="Any additional notes about this call..."></textarea>
+            </div>
+          </div>
+          <button class="btn-slack" id="rental-submit-slack" onclick="Slack.submit('fence-rental')">&#x1F4E4; Submit to Slack</button>
+        </div>
+      </div>
+
+      <!-- ============ BARRICADE RENTAL FLOW ============ -->
+      <div id="screen-barricade-rental" class="hidden">
+        <div class="section-header">
+          <button class="btn-back" onclick="CallFlow.reset()">&#x2190; Back</button>
+          <h2>&#x1F6A7; Barricade Rental</h2>
+        </div>
+
+        <div class="customer-info-section">
+          <h3>Customer Information</h3>
+          <div class="customer-info-fields">
+            <div class="field-group">
+              <label for="barricade-cust-name">Name</label>
+              <input type="text" id="barricade-cust-name" placeholder="e.g. John Smith">
+            </div>
+            <div class="field-group">
+              <label for="barricade-cust-phone">Phone</label>
+              <input type="tel" id="barricade-cust-phone" placeholder="e.g. (818) 555-1234">
+            </div>
+            <div class="field-group">
+              <label for="barricade-cust-email">Email</label>
+              <input type="email" id="barricade-cust-email" placeholder="e.g. john@example.com">
+            </div>
+            <div class="field-group">
+              <label for="barricade-cust-address">Job Site Address</label>
+              <input type="text" id="barricade-cust-address" placeholder="e.g. 123 Main St, Los Angeles, CA">
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="barricade-linear-feet">Linear Feet Needed</label>
+          <input type="number" id="barricade-linear-feet" min="1" step="1" inputmode="numeric" placeholder="e.g. 200">
+          <p class="note">Each barricade is 7.5 ft long x 3.5 ft tall — $15/barricade per month</p>
+        </div>
+
+        <div class="field-group">
+          <label>Rental Duration (months)</label>
+          <div class="radio-cards radio-cards-4">
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="1"><span>1 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="2"><span>2 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="3"><span>3 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="4"><span>4 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="5"><span>5 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="6"><span>6 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="7"><span>7 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="8"><span>8 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="9"><span>9 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="10"><span>10 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="11"><span>11 mo</span></label>
+            <label class="radio-card"><input type="radio" name="barricade-duration" value="12"><span>12 mo</span></label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="barricade-zip">Delivery Zip Code</label>
+          <input type="text" id="barricade-zip" maxlength="5" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 90210">
+          <p id="barricade-delivery-info" class="note"></p>
+        </div>
+
+        <div class="summary-card">
+          <h3>Estimate Summary</h3>
+          <div id="barricade-summary-content">
+            <p class="empty-state">Fill in the fields above to see your estimate.</p>
+          </div>
+          <button class="btn-save-pdf" id="barricade-save-pdf" style="display:none;" onclick="PdfExport.exportEstimate('barricade-rental','Barricade Rental Estimate')">Save as PDF</button>
+        </div>
+
+        <div class="csr-fields-section">
+          <h3>Call Summary</h3>
+          <div class="csr-fields-grid">
+            <div class="field-group">
+              <label for="barricade-csr-name">CSR Name</label>
+              <input type="text" id="barricade-csr-name" placeholder="Your name">
+            </div>
+            <div class="field-group">
+              <label for="barricade-call-outcome">Call Outcome</label>
+              <select id="barricade-call-outcome">
+                <option value="">Select...</option>
+                <option value="Sent Estimate">Sent Estimate</option>
+                <option value="Booked Job">Booked Job</option>
+                <option value="Follow-up Needed">Follow-up Needed</option>
+                <option value="Info Only">Info Only</option>
+                <option value="Transferred">Transferred</option>
+              </select>
+            </div>
+            <div class="field-group full-width">
+              <label for="barricade-csr-notes">Notes</label>
+              <textarea id="barricade-csr-notes" placeholder="Any additional notes about this call..."></textarea>
+            </div>
+          </div>
+          <button class="btn-slack" onclick="Slack.submit('barricade-rental')">&#x1F4E4; Submit to Slack</button>
+        </div>
+      </div>
+
+      <!-- ============ FENCE PURCHASE FLOW ============ -->
+      <div id="screen-fence-purchase" class="hidden">
+        <div class="section-header">
+          <button class="btn-back" onclick="CallFlow.reset()">&#x2190; Back</button>
+          <h2>&#x1F6D2; Fence Purchase</h2>
+        </div>
+
+        <div class="customer-info-section">
+          <h3>Customer Information</h3>
+          <div class="customer-info-fields">
+            <div class="field-group">
+              <label for="sales-cust-name">Name</label>
+              <input type="text" id="sales-cust-name" placeholder="e.g. John Smith">
+            </div>
+            <div class="field-group">
+              <label for="sales-cust-phone">Phone</label>
+              <input type="tel" id="sales-cust-phone" placeholder="e.g. (818) 555-1234">
+            </div>
+            <div class="field-group">
+              <label for="sales-cust-email">Email</label>
+              <input type="email" id="sales-cust-email" placeholder="e.g. john@example.com">
+            </div>
+            <div class="field-group">
+              <label for="sales-cust-address">Delivery Address</label>
+              <input type="text" id="sales-cust-address" placeholder="e.g. 123 Main St, Los Angeles, CA">
+            </div>
+          </div>
+        </div>
+
+        <div class="product-table-wrap">
+          <table class="product-table" id="sales-product-table">
+            <thead>
+              <tr><th>Product</th><th>Unit Price</th><th>Qty</th><th>Line Total</th></tr>
+            </thead>
+            <tbody id="sales-product-body"></tbody>
+          </table>
+        </div>
+
+        <div class="field-group">
+          <label>Does the customer need delivery?</label>
+          <div class="radio-cards">
+            <label class="radio-card"><input type="radio" name="sales-needs-delivery" value="yes"><span>Yes — Deliver</span></label>
+            <label class="radio-card"><input type="radio" name="sales-needs-delivery" value="no"><span>No — Will Call / Pickup</span></label>
+          </div>
+        </div>
+
+        <div id="sales-delivery-group" class="field-group delivery-field hidden">
+          <label for="sales-zip">Delivery Zip Code</label>
+          <input type="text" id="sales-zip" maxlength="5" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 90210">
+          <p id="sales-delivery-info" class="note"></p>
+        </div>
+
+        <div class="summary-card">
+          <h3>Purchase Summary</h3>
+          <div id="sales-summary-content">
+            <p class="empty-state">Add quantities above to see your estimate.</p>
+          </div>
+          <button class="btn-save-pdf" id="sales-save-pdf" style="display:none;" onclick="PdfExport.exportEstimate('fence-purchase','Fence Purchase Estimate')">Save as PDF</button>
+        </div>
+
+        <div class="csr-fields-section">
+          <h3>Call Summary</h3>
+          <div class="csr-fields-grid">
+            <div class="field-group">
+              <label for="sales-csr-name">CSR Name</label>
+              <input type="text" id="sales-csr-name" placeholder="Your name">
+            </div>
+            <div class="field-group">
+              <label for="sales-call-outcome">Call Outcome</label>
+              <select id="sales-call-outcome">
+                <option value="">Select...</option>
+                <option value="Sent Estimate">Sent Estimate</option>
+                <option value="Booked Job">Booked Job</option>
+                <option value="Follow-up Needed">Follow-up Needed</option>
+                <option value="Info Only">Info Only</option>
+                <option value="Transferred">Transferred</option>
+              </select>
+            </div>
+            <div class="field-group full-width">
+              <label for="sales-csr-notes">Notes</label>
+              <textarea id="sales-csr-notes" placeholder="Any additional notes about this call..."></textarea>
+            </div>
+          </div>
+          <button class="btn-slack" onclick="Slack.submit('fence-purchase')">&#x1F4E4; Submit to Slack</button>
+        </div>
+      </div>
+
+      <!-- ============ ISSUE FLOW ============ -->
+      <div id="screen-issue" class="hidden">
+        <div class="section-header">
+          <button class="btn-back" onclick="CallFlow.reset()">&#x2190; Back</button>
+          <h2>&#x26A0;&#xFE0F; Issue with Existing Rental</h2>
+        </div>
+
+        <div class="service-form">
+          <div class="customer-info-section">
+            <h3>Customer Information</h3>
+            <div class="customer-info-fields">
+              <div class="field-group">
+                <label for="issue-cust-name">Customer Name</label>
+                <input type="text" id="issue-cust-name" placeholder="e.g. Jane Doe">
+              </div>
+              <div class="field-group">
+                <label for="issue-cust-phone">Phone</label>
+                <input type="tel" id="issue-cust-phone" placeholder="e.g. (818) 555-5678">
+              </div>
+              <div class="field-group">
+                <label for="issue-site-address">Rental Site Address</label>
+                <input type="text" id="issue-site-address" placeholder="e.g. 456 Oak Ave, Burbank, CA">
+              </div>
+              <div class="field-group">
+                <label for="issue-order-num">Order # (if known)</label>
+                <input type="text" id="issue-order-num" placeholder="e.g. FD-2024-0891">
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Issue Type</label>
+            <div class="radio-cards radio-cards-4">
+              <label class="radio-card"><input type="radio" name="issue-type" value="Damaged panel"><span>Damaged Panel</span></label>
+              <label class="radio-card"><input type="radio" name="issue-type" value="Fallen fence"><span>Fallen Fence</span></label>
+              <label class="radio-card"><input type="radio" name="issue-type" value="Missing parts"><span>Missing Parts</span></label>
+              <label class="radio-card"><input type="radio" name="issue-type" value="Gate issue"><span>Gate Issue</span></label>
+            </div>
+            <div style="margin-top: 8px;">
+              <label class="radio-card" style="display:inline-flex; min-width:auto;">
+                <input type="radio" name="issue-type" value="Other">
+                <span>Other</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="issue-description">Description</label>
+            <textarea id="issue-description" rows="4" placeholder="Describe the issue in detail..."></textarea>
+          </div>
+
+          <div class="field-group">
+            <label>Priority</label>
+            <div class="radio-cards">
+              <label class="radio-card"><input type="radio" name="issue-priority" value="Urgent"><span>Urgent</span></label>
+              <label class="radio-card"><input type="radio" name="issue-priority" value="Normal"><span>Normal</span></label>
+            </div>
+          </div>
+
+          <div class="csr-fields-section">
+            <h3>Call Summary</h3>
+            <div class="csr-fields-grid">
+              <div class="field-group">
+                <label for="issue-csr-name">CSR Name</label>
+                <input type="text" id="issue-csr-name" placeholder="Your name">
+              </div>
+              <div class="field-group">
+                <label for="issue-call-outcome">Call Outcome</label>
+                <select id="issue-call-outcome">
+                  <option value="">Select...</option>
+                  <option value="Dispatched Repair">Dispatched Repair</option>
+                  <option value="Scheduled Repair">Scheduled Repair</option>
+                  <option value="Follow-up Needed">Follow-up Needed</option>
+                  <option value="Transferred">Transferred</option>
+                  <option value="Resolved on Call">Resolved on Call</option>
+                </select>
+              </div>
+              <div class="field-group full-width">
+                <label for="issue-csr-notes">Notes</label>
+                <textarea id="issue-csr-notes" placeholder="Any additional notes about this call..."></textarea>
+              </div>
+            </div>
+            <button class="btn-slack" onclick="Slack.submit('issue')">&#x1F4E4; Submit to Slack</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ REMOVAL FLOW ============ -->
+      <div id="screen-removal" class="hidden">
+        <div class="section-header">
+          <button class="btn-back" onclick="CallFlow.reset()">&#x2190; Back</button>
+          <h2>&#x1F4E6; Ready for Removal</h2>
+        </div>
+
+        <div class="service-form">
+          <div class="customer-info-section">
+            <h3>Customer Information</h3>
+            <div class="customer-info-fields">
+              <div class="field-group">
+                <label for="removal-cust-name">Customer Name</label>
+                <input type="text" id="removal-cust-name" placeholder="e.g. Bob Wilson">
+              </div>
+              <div class="field-group">
+                <label for="removal-cust-phone">Phone</label>
+                <input type="tel" id="removal-cust-phone" placeholder="e.g. (818) 555-9999">
+              </div>
+              <div class="field-group">
+                <label for="removal-site-address">Rental Site Address</label>
+                <input type="text" id="removal-site-address" placeholder="e.g. 789 Pine St, Sylmar, CA">
+              </div>
+              <div class="field-group">
+                <label for="removal-order-num">Order # (if known)</label>
+                <input type="text" id="removal-order-num" placeholder="e.g. FD-2024-0455">
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="removal-preferred-date">Preferred Removal Date</label>
+            <input type="date" id="removal-preferred-date">
+          </div>
+
+          <div class="field-group">
+            <label for="removal-instructions">Special Instructions</label>
+            <textarea id="removal-instructions" rows="3" placeholder="e.g. Gate on north side needs to be removed first..."></textarea>
+          </div>
+
+          <div class="csr-fields-section">
+            <h3>Call Summary</h3>
+            <div class="csr-fields-grid">
+              <div class="field-group">
+                <label for="removal-csr-name">CSR Name</label>
+                <input type="text" id="removal-csr-name" placeholder="Your name">
+              </div>
+              <div class="field-group">
+                <label for="removal-call-outcome">Call Outcome</label>
+                <select id="removal-call-outcome">
+                  <option value="">Select...</option>
+                  <option value="Removal Scheduled">Removal Scheduled</option>
+                  <option value="Follow-up Needed">Follow-up Needed</option>
+                  <option value="Transferred">Transferred</option>
+                </select>
+              </div>
+              <div class="field-group full-width">
+                <label for="removal-csr-notes">Notes</label>
+                <textarea id="removal-csr-notes" placeholder="Any additional notes about this call..."></textarea>
+              </div>
+            </div>
+            <button class="btn-slack" onclick="Slack.submit('removal')">&#x1F4E4; Submit to Slack</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ GENERAL QUESTION FLOW ============ -->
+      <div id="screen-general" class="hidden">
+        <div class="section-header">
+          <button class="btn-back" onclick="CallFlow.reset()">&#x2190; Back</button>
+          <h2>&#x2753; General Question</h2>
+        </div>
+
+        <div class="service-form">
+          <div class="customer-info-section">
+            <h3>Customer Information</h3>
+            <div class="customer-info-fields">
+              <div class="field-group">
+                <label for="general-cust-name">Customer Name</label>
+                <input type="text" id="general-cust-name" placeholder="e.g. Maria Garcia">
+              </div>
+              <div class="field-group">
+                <label for="general-cust-phone">Phone</label>
+                <input type="tel" id="general-cust-phone" placeholder="e.g. (818) 555-3333">
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="general-topic">Topic</label>
+            <select id="general-topic">
+              <option value="">Select a topic...</option>
+              <option value="Billing question">Billing Question</option>
+              <option value="Extension/renewal">Extension / Renewal</option>
+              <option value="Delivery scheduling">Delivery Scheduling</option>
+              <option value="Product info">Product Information</option>
+              <option value="Pricing question">Pricing Question</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="general-summary">Call Summary</label>
+            <textarea id="general-summary" rows="4" placeholder="Summarize the customer's question and how it was resolved..."></textarea>
+          </div>
+
+          <div class="csr-fields-section">
+            <h3>Call Wrap-up</h3>
+            <div class="csr-fields-grid">
+              <div class="field-group">
+                <label for="general-csr-name">CSR Name</label>
+                <input type="text" id="general-csr-name" placeholder="Your name">
+              </div>
+              <div class="field-group">
+                <label for="general-call-outcome">Follow-up Needed?</label>
+                <select id="general-call-outcome">
+                  <option value="">Select...</option>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+              <div class="field-group full-width">
+                <label for="general-csr-notes">Notes</label>
+                <textarea id="general-csr-notes" placeholder="Any additional notes..."></textarea>
+              </div>
+            </div>
+            <button class="btn-slack" onclick="Slack.submit('general')">&#x1F4E4; Submit to Slack</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========== SCRIPT PANEL (right 40%) ========== -->
+    <div class="script-panel" id="script-panel">
+      <button class="script-panel-toggle" id="script-toggle" onclick="ScriptPanel.toggleMobile()">
+        &#x1F4D6; Call Script &#x25B2;
+      </button>
+      <div class="script-panel-header">
+        <span class="script-panel-icon">&#x1F4D6;</span>
+        <h2>Call Script</h2>
+      </div>
+      <div id="script-content">
+        <div class="script-block">
+          <div class="script-say">Select a call type to get started. The script will guide you through each step of the conversation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Widget -->
+  <button class="help-btn" id="help-btn" onclick="HelpWidget.toggle()">?</button>
+  <div class="help-overlay" id="help-overlay" onclick="HelpWidget.close()"></div>
+  <div class="help-drawer" id="help-drawer">
+    <div class="help-drawer-header">
+      <h3>&#x2753; Knowledge Base</h3>
+      <button class="help-close" onclick="HelpWidget.close()">&times;</button>
+    </div>
+    <div class="help-search">
+      <input type="text" id="help-search-input" placeholder="Search for help..." oninput="HelpWidget.search(this.value)">
+    </div>
+    <div class="help-content" id="help-content">
+      <!-- Populated by help-widget.js -->
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/zip-data.js"></script>
+  <script src="js/distance.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/rental-estimator.js"></script>
+  <script src="js/barricade-estimator.js"></script>
+  <script src="js/sales-estimator.js"></script>
+  <script src="js/script-data.js"></script>
+  <script src="js/script-panel.js"></script>
+  <script src="js/call-flow.js"></script>
+  <script src="js/help-widget.js"></script>
+  <script src="js/slack.js"></script>
+</body>
+</html>
