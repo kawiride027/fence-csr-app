@@ -81,5 +81,5 @@ const CONFIG = {
   roadDistanceMultiplier: 1.3,
 
   // ---- SLACK INTEGRATION ----
-  slackWebhookUrl: "", // Set your Slack Incoming Webhook URL here
+  slackWebhookUrl: "https://hooks.slack.com/services/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", // Set your Slack Incoming Webhook URL here
 };
