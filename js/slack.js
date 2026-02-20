@@ -1,59 +1,53 @@
 // ============================================================
-// SLACK — Post call summaries to Slack via Incoming Webhook
+// SLACK — Copy formatted call summary to clipboard for pasting
+// into Slack. CSR clicks "Copy for Slack" then pastes in channel.
 // ============================================================
 
 var Slack = {
-  submit: function (flowType) {
-    if (!CONFIG.slackWebhookUrl) {
-      Utils.showToast("Slack not configured \u2014 set webhook URL in config.js", "error");
+  copyToClipboard: function (flowType) {
+    var text = this.buildText(flowType);
+    if (!text) {
+      Utils.showToast("Please fill in the form first", "error");
       return;
     }
 
-    var payload = this.buildPayload(flowType);
-    if (!payload) {
-      Utils.showToast("Please fill in the required fields", "error");
-      return;
-    }
-
-    var self = this;
-    fetch(CONFIG.slackWebhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "payload=" + encodeURIComponent(JSON.stringify(payload))
-    })
-    .then(function (response) {
-      if (response.ok) {
-        Utils.showToast("Submitted to Slack!", "success");
-      } else {
-        Utils.showToast("Slack error \u2014 check webhook URL", "error");
-      }
-    })
-    .catch(function (err) {
-      Utils.showToast("Network error \u2014 could not reach Slack", "error");
+    navigator.clipboard.writeText(text).then(function () {
+      Utils.showToast("Copied! Paste it in your Slack channel", "success");
+    }).catch(function () {
+      // Fallback for older browsers
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      Utils.showToast("Copied! Paste it in your Slack channel", "success");
     });
   },
 
-  buildPayload: function (flowType) {
+  buildText: function (flowType) {
     switch (flowType) {
       case "fence-rental":
-        return this.buildRentalPayload();
+        return this.buildRentalText();
       case "barricade-rental":
-        return this.buildBarricadePayload();
+        return this.buildBarricadeText();
       case "fence-purchase":
-        return this.buildPurchasePayload();
+        return this.buildPurchaseText();
       case "issue":
-        return this.buildIssuePayload();
+        return this.buildIssueText();
       case "removal":
-        return this.buildRemovalPayload();
+        return this.buildRemovalText();
       case "general":
-        return this.buildGeneralPayload();
+        return this.buildGeneralText();
       default:
         return null;
     }
   },
 
   // ---- RENTAL ----
-  buildRentalPayload: function () {
+  buildRentalText: function () {
     var name = document.getElementById("rental-cust-name").value.trim();
     var phone = document.getElementById("rental-cust-phone").value.trim();
     var email = document.getElementById("rental-cust-email").value.trim();
@@ -62,7 +56,6 @@ var Slack = {
     var outcome = document.getElementById("rental-call-outcome").value;
     var notes = document.getElementById("rental-csr-notes").value.trim();
 
-    // Gather estimate details
     var lf = document.getElementById("rental-linear-feet").value || "N/A";
     var height = Utils.getRadioValue("rental-height") || "N/A";
     var surface = Utils.getRadioValue("rental-surface") || "N/A";
@@ -74,11 +67,10 @@ var Slack = {
     var duration = document.getElementById("rental-duration").value || "6";
     var zip = document.getElementById("rental-zip").value.trim() || "N/A";
 
-    // Get total from summary
     var totalEl = document.querySelector("#rental-summary-content .summary-total");
     var total = totalEl ? totalEl.lastElementChild.textContent : "N/A";
 
-    var text = "\uD83C\uDFD7\uFE0F *NEW FENCE RENTAL INQUIRY*\n" +
+    return "\uD83C\uDFD7\uFE0F *NEW FENCE RENTAL INQUIRY*\n" +
       "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n" +
       "*Customer:* " + (name || "N/A") + "\n" +
       "*Phone:* " + (phone || "N/A") + "\n" +
@@ -93,14 +85,12 @@ var Slack = {
       "\u2022 Delivery zip: " + zip + "\n\n" +
       "*Estimated Total: " + total + "*\n\n" +
       "*CSR:* " + (csrName || "N/A") + "\n" +
-      "*Outcome:* " + (outcome || "N/A") + "\n" +
-      (notes ? "*Notes:* " + notes : "");
-
-    return { text: text };
+      "*Outcome:* " + (outcome || "N/A") +
+      (notes ? "\n*Notes:* " + notes : "");
   },
 
   // ---- BARRICADE ----
-  buildBarricadePayload: function () {
+  buildBarricadeText: function () {
     var name = document.getElementById("barricade-cust-name").value.trim();
     var phone = document.getElementById("barricade-cust-phone").value.trim();
     var email = document.getElementById("barricade-cust-email").value.trim();
@@ -119,7 +109,7 @@ var Slack = {
 
     var barricadeCount = lf !== "N/A" ? Math.ceil(parseInt(lf) / CONFIG.rental.barricadeLengthFt) : "N/A";
 
-    var text = "\uD83D\uDEA7 *BARRICADE RENTAL INQUIRY*\n" +
+    return "\uD83D\uDEA7 *BARRICADE RENTAL INQUIRY*\n" +
       "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n" +
       "*Customer:* " + (name || "N/A") + "\n" +
       "*Phone:* " + (phone || "N/A") + "\n" +
@@ -131,14 +121,12 @@ var Slack = {
       "\u2022 Delivery zip: " + zip + "\n\n" +
       "*Estimated Total: " + total + "*\n\n" +
       "*CSR:* " + (csrName || "N/A") + "\n" +
-      "*Outcome:* " + (outcome || "N/A") + "\n" +
-      (notes ? "*Notes:* " + notes : "");
-
-    return { text: text };
+      "*Outcome:* " + (outcome || "N/A") +
+      (notes ? "\n*Notes:* " + notes : "");
   },
 
   // ---- PURCHASE ----
-  buildPurchasePayload: function () {
+  buildPurchaseText: function () {
     var name = document.getElementById("sales-cust-name").value.trim();
     var phone = document.getElementById("sales-cust-phone").value.trim();
     var email = document.getElementById("sales-cust-email").value.trim();
@@ -147,7 +135,6 @@ var Slack = {
     var outcome = document.getElementById("sales-call-outcome").value;
     var notes = document.getElementById("sales-csr-notes").value.trim();
 
-    // Gather product quantities
     var products = [];
     document.querySelectorAll("#sales-product-body tr").forEach(function (row) {
       var input = row.querySelector("input");
@@ -161,7 +148,7 @@ var Slack = {
     var totalEl = document.querySelector("#sales-summary-content .summary-total");
     var total = totalEl ? totalEl.lastElementChild.textContent : "N/A";
 
-    var text = "\uD83D\uDED2 *FENCE PURCHASE INQUIRY*\n" +
+    return "\uD83D\uDED2 *FENCE PURCHASE INQUIRY*\n" +
       "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n" +
       "*Customer:* " + (name || "N/A") + "\n" +
       "*Phone:* " + (phone || "N/A") + "\n" +
@@ -171,14 +158,12 @@ var Slack = {
       (products.length > 0 ? products.map(function (p) { return "\u2022 " + p; }).join("\n") : "\u2022 None") + "\n\n" +
       "*Estimated Total: " + total + "*\n\n" +
       "*CSR:* " + (csrName || "N/A") + "\n" +
-      "*Outcome:* " + (outcome || "N/A") + "\n" +
-      (notes ? "*Notes:* " + notes : "");
-
-    return { text: text };
+      "*Outcome:* " + (outcome || "N/A") +
+      (notes ? "\n*Notes:* " + notes : "");
   },
 
   // ---- ISSUE ----
-  buildIssuePayload: function () {
+  buildIssueText: function () {
     var name = document.getElementById("issue-cust-name").value.trim();
     var phone = document.getElementById("issue-cust-phone").value.trim();
     var address = document.getElementById("issue-site-address").value.trim();
@@ -190,7 +175,7 @@ var Slack = {
     var outcome = document.getElementById("issue-call-outcome").value;
     var notes = document.getElementById("issue-csr-notes").value.trim();
 
-    var text = "\u26A0\uFE0F *RENTAL ISSUE REPORTED*\n" +
+    return "\u26A0\uFE0F *RENTAL ISSUE REPORTED*\n" +
       "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n" +
       "*Customer:* " + (name || "N/A") + "\n" +
       "*Phone:* " + (phone || "N/A") + "\n" +
@@ -200,14 +185,12 @@ var Slack = {
       "*Description:* " + (description || "N/A") + "\n" +
       "*Priority:* " + priority + "\n\n" +
       "*CSR:* " + (csrName || "N/A") + "\n" +
-      "*Outcome:* " + (outcome || "N/A") + "\n" +
-      (notes ? "*Notes:* " + notes : "");
-
-    return { text: text };
+      "*Outcome:* " + (outcome || "N/A") +
+      (notes ? "\n*Notes:* " + notes : "");
   },
 
   // ---- REMOVAL ----
-  buildRemovalPayload: function () {
+  buildRemovalText: function () {
     var name = document.getElementById("removal-cust-name").value.trim();
     var phone = document.getElementById("removal-cust-phone").value.trim();
     var address = document.getElementById("removal-site-address").value.trim();
@@ -218,7 +201,7 @@ var Slack = {
     var outcome = document.getElementById("removal-call-outcome").value;
     var notes = document.getElementById("removal-csr-notes").value.trim();
 
-    var text = "\uD83D\uDCE6 *REMOVAL REQUEST*\n" +
+    return "\uD83D\uDCE6 *REMOVAL REQUEST*\n" +
       "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n" +
       "*Customer:* " + (name || "N/A") + "\n" +
       "*Phone:* " + (phone || "N/A") + "\n" +
@@ -227,14 +210,12 @@ var Slack = {
       "*Preferred Date:* " + prefDate + "\n" +
       (instructions ? "*Special Instructions:* " + instructions + "\n\n" : "\n") +
       "*CSR:* " + (csrName || "N/A") + "\n" +
-      "*Outcome:* " + (outcome || "N/A") + "\n" +
-      (notes ? "*Notes:* " + notes : "");
-
-    return { text: text };
+      "*Outcome:* " + (outcome || "N/A") +
+      (notes ? "\n*Notes:* " + notes : "");
   },
 
   // ---- GENERAL ----
-  buildGeneralPayload: function () {
+  buildGeneralText: function () {
     var name = document.getElementById("general-cust-name").value.trim();
     var phone = document.getElementById("general-cust-phone").value.trim();
     var topic = document.getElementById("general-topic").value || "N/A";
@@ -243,16 +224,14 @@ var Slack = {
     var followUp = document.getElementById("general-call-outcome").value;
     var notes = document.getElementById("general-csr-notes").value.trim();
 
-    var text = "\u2753 *GENERAL INQUIRY*\n" +
+    return "\u2753 *GENERAL INQUIRY*\n" +
       "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n" +
       "*Customer:* " + (name || "N/A") + "\n" +
       "*Phone:* " + (phone || "N/A") + "\n\n" +
       "*Topic:* " + topic + "\n" +
       "*Summary:* " + (summary || "N/A") + "\n\n" +
       "*CSR:* " + (csrName || "N/A") + "\n" +
-      "*Follow-up needed:* " + (followUp || "N/A") + "\n" +
-      (notes ? "*Notes:* " + notes : "");
-
-    return { text: text };
+      "*Follow-up needed:* " + (followUp || "N/A") +
+      (notes ? "\n*Notes:* " + notes : "");
   }
 };

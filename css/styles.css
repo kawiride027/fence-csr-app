@@ -763,7 +763,7 @@ select {
   justify-content: center;
   gap: 8px;
   padding: 12px 24px;
-  background: #4A154B;
+  background: #1264A3;
   color: #fff;
   border: none;
   border-radius: var(--radius);
@@ -775,7 +775,7 @@ select {
   margin-top: 8px;
 }
 .btn-slack:hover {
-  background: #611f69;
+  background: #0b4f8a;
 }
 .btn-slack:disabled {
   background: #999;
