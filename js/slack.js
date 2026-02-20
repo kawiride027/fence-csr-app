@@ -18,11 +18,15 @@ var Slack = {
     var self = this;
     fetch(CONFIG.slackWebhookUrl, {
       method: "POST",
-      mode: "no-cors",
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "payload=" + encodeURIComponent(JSON.stringify(payload))
     })
-    .then(function () {
-      Utils.showToast("Submitted to Slack!", "success");
+    .then(function (response) {
+      if (response.ok) {
+        Utils.showToast("Submitted to Slack!", "success");
+      } else {
+        Utils.showToast("Slack error \u2014 check webhook URL", "error");
+      }
     })
     .catch(function (err) {
       Utils.showToast("Network error \u2014 could not reach Slack", "error");
