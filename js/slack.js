@@ -83,6 +83,8 @@ var Slack = {
       "\u2022 Sandbags: " + sandbags + "\n" +
       "\u2022 Duration: " + duration + " months\n" +
       "\u2022 Delivery zip: " + zip + "\n\n" +
+      "*Pricing Breakdown:*\n" +
+(lineItems || "\u2022 Run the estimate to see breakdown\n") + "\n" +
       "*Estimated Total: " + total + "*\n\n" +
       "*CSR:* " + (csrName || "N/A") + "\n" +
       "*Outcome:* " + (outcome || "N/A") +
@@ -119,7 +121,9 @@ var Slack = {
       "\u2022 " + lf + " LF (" + barricadeCount + " barricades)\n" +
       "\u2022 Duration: " + months + " month(s)\n" +
       "\u2022 Delivery zip: " + zip + "\n\n" +
-      "*Estimated Total: " + total + "*\n\n" +
+      ""*Pricing Breakdown:*\n" +
+(lineItems || "\u2022 Run the estimate to see breakdown\n") + "\n" +
+      *Estimated Total: " + total + "*\n\n" +
       "*CSR:* " + (csrName || "N/A") + "\n" +
       "*Outcome:* " + (outcome || "N/A") +
       (notes ? "\n*Notes:* " + notes : "");
