@@ -229,7 +229,7 @@ var RentalEstimator = {
     var postCount = 0;
     var postCost = 0;
     if (installType === "in-ground") {
-      postCount = panels * CONFIG.rental.postsPerPanel;
+      postCount = panels + 1; // panels share posts at junctions, so panels + 1 end post
       postCost = postCount * CONFIG.rental.inGroundPostPrice;
       if (surface === "concrete") {
         concreteSurcharge = roundedFeet * CONFIG.rental.concreteSurcharge;
