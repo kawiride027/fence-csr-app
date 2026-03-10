@@ -41,6 +41,9 @@ var RentalEstimator = {
     });
     document.querySelectorAll('input[name="rental-install-type"]').forEach(function (r) {
       r.addEventListener("change", function () {
+        if (r.value === "in-ground" && r.checked) {
+          self.showDigAlertWarning();
+        }
         self.unlockStep(4);
         self.resetStepsFrom(6);
         self.checkStep5();
@@ -398,5 +401,39 @@ var RentalEstimator = {
     }
 
     el.innerHTML = html;
+  },
+
+  showDigAlertWarning: function () {
+    var existing = document.getElementById("dig-alert-modal");
+    if (existing) existing.remove();
+
+    var overlay = document.createElement("div");
+    overlay.id = "dig-alert-modal";
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;";
+
+    var box = document.createElement("div");
+    box.style.cssText = "background:#fff;border-radius:16px;max-width:420px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);";
+
+    box.innerHTML =
+      '<div style="font-size:48px;margin-bottom:12px;">⚠️</div>' +
+      '<h3 style="font-size:20px;font-weight:700;color:#1e293b;margin:0 0 8px;">Dig Alert Required — Call 811</h3>' +
+      '<p style="font-size:14px;color:#475569;line-height:1.5;margin:0 0 16px;">' +
+        'The customer <strong>must</strong> call <strong style="color:#dc2626;font-size:16px;">811</strong> before any in-ground installation. ' +
+        'This is a <strong>free service</strong> that marks all underground utilities (gas, electric, water, cable) so our installers don\'t hit them during post driving.' +
+      '</p>' +
+      '<div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:12px;margin-bottom:16px;">' +
+        '<p style="font-size:13px;color:#92400e;margin:0;"><strong>Tell the customer:</strong><br>"You\'ll need to dial 811 at least 2 business days before your install date. It\'s free — the city will come out and mark all underground lines at your job site."</p>' +
+      '</div>' +
+      '<button id="dig-alert-ok" style="background:#41a329;color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:15px;font-weight:600;cursor:pointer;width:100%;">Got It</button>';
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    document.getElementById("dig-alert-ok").addEventListener("click", function () {
+      overlay.remove();
+    });
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) overlay.remove();
+    });
   }
 };
